@@ -14,6 +14,10 @@ RUN echo 'vm.max_map_count=262144' >> /etc/sysctl.conf
 # configure plugins
 RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-s3 --batch
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-gcs --batch
+
+# Need to make sure Service account is mounted here.
+RUN /usr/share/elasticsearch/bin/elasticsearch-keystore add-file gcs.client.default.credentials_file /etc/gcp/service-account.json
 
 # elasticsearch config
 ADD elasticsearch.yml /usr/share/elasticsearch/config/
@@ -32,7 +36,8 @@ RUN chmod go+w /usr/share/elasticsearch \
 # add list permissions to directories
 RUN chmod go+x /usr/share/elasticsearch \
   /usr/share/elasticsearch/config \
-  /usr/share/elasticsearch/config/repository-s3
+  /usr/share/elasticsearch/config/repository-s3 \
+  /usr/share/elasticsearch/config/repository-gcs
 
 # add execute permissions to bins
 RUN chmod go+x /usr/share/elasticsearch/bin/*
